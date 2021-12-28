@@ -60,6 +60,10 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self._set_response_ok(f"Added ")
 
     def _pcik_microservice(self, url_path:str) -> Microservice:
+        """
+        Check if the path is known. Pick a node from the set, add the node to end of 
+        # roun-roubin list 
+        """
 
     def _proxy_request(self):
         # urllib.request.urlopen(url)
