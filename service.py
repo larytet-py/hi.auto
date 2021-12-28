@@ -41,7 +41,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
         return parsed_url.path, query_params
 
-    def do_registration(self, url_path: str, query_params: Dict[str, str]):
+    def _do_registration(self, url_path: str, query_params: Dict[str, str]):
         """
         Add a new node to the dictionary of microservices
         """
@@ -105,7 +105,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         if micro_service is None:
             return
 
-        self.proxy_request(url_path, query_params)
+        self._proxy_request(url_path, query_params)
 
 
 @easyargs
