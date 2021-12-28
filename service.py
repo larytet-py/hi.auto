@@ -48,9 +48,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         # 'keep_blank_values' will enable parameters without a value
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
-        self._set_response_ok()
         msg = (f"This is POST path={parsed_url.path} params={query_params}")
-        self.wfile.write(msg.encode("utf-8"))
+        self._set_response_ok(msg)
 
 
 @easyargs
