@@ -7,7 +7,6 @@ import http.server
 from http import HTTPStatus
 import easyargs
 import json
-import requests
 from collections import namedtuple, deque
 
 Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
