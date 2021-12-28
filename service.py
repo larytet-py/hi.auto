@@ -63,17 +63,26 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.microservices[url_path] = list(microservices)
         self._set_response_ok(f"Added ")
 
-    def _pcik_microservice(self, url_path: str) -> Microservice:
+    def _pick_microservice(self, url_path: str) -> Microservice:
         """
         Check if the path is known. Pick a node from the set, add the node to end of
         # roun-roubin list
         """
-        microservice: Microservice = self.microservices.get(url_path, None)
-        if not microservice:
+        microservices: List[Microservice] = self.microservices.get(url_path, [])
+        if not microservices:
             self._set_error(
                 HTTPStatus.BAD_REQUEST, f"Path {url_path} is not registered"
             )
             return
+
+        microservice = microservices[0]
+
+        # rotate the list 
+        microservices = deque(microservices)
+        microservices.rotate(1)
+        microservices = list(microservices)        
+
+        return microservice
 
     def _proxy_request(self):
         # urllib.request.urlopen(url)
@@ -87,7 +96,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             return
 
         # forward the query
-        micro_service = self._pcik_microservice(url_path)
+        micro_service = self._pick_microservice(url_path)
         if micro_service is None:
             return
 
