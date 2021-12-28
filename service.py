@@ -110,7 +110,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 class ProxyHTTPHandler:
     def __init__(self):
         self.http_handler = HTTPHandler()
-        self.microservices: Dict[str, List[Microservice]] = {}
+        self.http_handler.microservices = {}
         self.server = http.server.HTTPServer(self.http_handler)    
 
 @easyargs
