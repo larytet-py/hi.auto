@@ -73,7 +73,7 @@ def main(server_port=8080):
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger()
+    logger = logging.getLogger("hi.auto")
     logging.basicConfig()
     logger.setLevel(logging.DEBUG)
     sys.exit(main())
