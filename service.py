@@ -1,6 +1,6 @@
 import sys
 from os import path
-from typing import Set, Dict, IO, Iterable, List, Optional, Tuple, Union
+from typing import Set, Dict, IO, Iterable, List, Optional, Tuple, Union, Any
 import logging
 from urllib.parse import urlparse, parse_qs
 import http.server
@@ -9,7 +9,7 @@ import json
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
-    def _set_response_ok(self, msg):
+    def _set_response_ok(self, msg: Any):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -18,7 +18,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         msg = json.dumps({"msg": msg})
         self.wfile.write(msg.encode("utf-8"))
 
-    def _set_error(self, msg):
+    def _set_error(self, msg: Any):
         self.send_response(400)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -48,7 +48,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         # 'keep_blank_values' will enable parameters without a value
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
-        msg = (f"This is POST path={parsed_url.path} params={query_params}")
+        msg = f"This is POST path={parsed_url.path} params={query_params}"
         self._set_response_ok(msg)
 
 
