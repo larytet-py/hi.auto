@@ -56,9 +56,10 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             return
 
         microservices: Set[Microservice] = all_microservices.get(url_path, set())
-        microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
+        microservice = Microservice(ip_port=ip_port, ip_address=ip_address)
+        microservices.add(microservice)
         all_microservices[url_path] = list(microservices)
-        self._set_response_ok(f"Added ")
+        self._set_response_ok(f"Added {microservice}")
 
     def _pick_microservice(self, url_path: str) -> Microservice:
         """
