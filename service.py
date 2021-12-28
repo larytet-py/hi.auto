@@ -4,13 +4,14 @@ from typing import Set, Dict, IO, Iterable, List, Optional, Tuple, Union, Any
 import logging
 from urllib.parse import urlparse, parse_qs
 import http.server
+from http import HTTPStatus
 import easyargs
 import json
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def _set_response_ok(self, msg: Any):
-        self.send_response(200)
+        self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "application/json")
         self.end_headers()
 
@@ -18,8 +19,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         msg = json.dumps({"msg": msg})
         self.wfile.write(msg.encode("utf-8"))
 
-    def _set_error(self, msg: Any):
-        self.send_response(400)
+    def _set_error(self, status: HTTPStatus, msg: Any):
+        self.send_response(status)
         self.send_header("Content-type", "application/json")
         self.end_headers()
 
@@ -45,12 +46,12 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         path, query_params = self._get_params()
         if not path:
             msg = f"Path is missing in the URL {self.path}"
-            self._set_error(msg)
+            self._set_error(HTTPStatus.BAD_REQUEST, msg)
             return
 
         if not path in ["", "/"]:
             msg = f"I don;t recognize {path}"
-            self._set_error(msg)
+            self._set_error(HTTPStatus.BAD_REQUEST, msg)
             return
 
         msg = f"This is POST path={path} params={query_params}"
