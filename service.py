@@ -1,6 +1,6 @@
 from collections import namedtuple
 import sys
-from typing import Dict, Tuple, Any,  List, Set
+from typing import Dict, Tuple, Any, List, Set
 import logging
 from urllib.parse import urlparse, parse_qs
 import urllib.request
@@ -13,6 +13,7 @@ from collections import namedtuple
 
 Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
 logger = None
+
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def __init__(self):
@@ -62,18 +63,21 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.microservices[url_path] = list(microservices)
         self._set_response_ok(f"Added ")
 
-    def _pcik_microservice(self, url_path:str) -> Microservice:
+    def _pcik_microservice(self, url_path: str) -> Microservice:
         """
-        Check if the path is known. Pick a node from the set, add the node to end of 
-        # roun-roubin list 
+        Check if the path is known. Pick a node from the set, add the node to end of
+        # roun-roubin list
         """
         microservice: Microservice = self.microservices.get(url_path, None)
         if not microservice:
-            self._set_error(HTTPStatus.BAD_REQUEST, f"Path {url_path} is not registered")
+            self._set_error(
+                HTTPStatus.BAD_REQUEST, f"Path {url_path} is not registered"
+            )
             return
 
     def _proxy_request(self):
         # urllib.request.urlopen(url)
+        pass
 
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
