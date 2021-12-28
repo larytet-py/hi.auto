@@ -9,24 +9,27 @@ import json
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
-    def _set_response_ok(self):
+    def _set_response_ok(self, msg):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
 
-    def _set_error(self, msg):
-        logger.error(msg)
-        msg = json.dumps({"err": msg})
+        logger.debug(f"{msg}")
+        msg = json.dumps({"msg": msg})
+        self.wfile.write(msg.encode("utf-8"))
 
+    def _set_error(self, msg):
         self.send_response(400)
         self.send_header("Content-type", "application/json")
         self.end_headers()
+
+        logger.error(f"{msg}")
+        msg = json.dumps({"err": msg})
         self.wfile.write(msg.encode("utf-8"))
 
     def do_GET(self):
-        self._set_response_ok()
-        msg = (f"This is GET {self.path}")
-        self.wfile.write(msg.encode("utf-8"))
+        msg = f"This is GET {self.path}"
+        self._set_response_ok(msg)
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", "0"))
