@@ -28,7 +28,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(msg.encode("utf-8"))
 
     def do_GET(self):
-        msg = f"This is GET {self.path}"
+        parsed_url = urlparse(self.path)
+        query_params = parse_qs(parsed_url.query, keep_blank_values=True)
+        msg = f"This is GET  path={parsed_url.path} params={query_params}"
         self._set_response_ok(msg)
 
     def do_POST(self):
