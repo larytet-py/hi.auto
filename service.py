@@ -12,7 +12,7 @@ import requests
 from collections import namedtuple
 
 Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
-
+logger = None
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def __init__(self):
@@ -44,6 +44,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         return parsed_url.path, query_params
 
     def do_registration(self, url_path: str, query_params: Dict[str, str]):
+        """
+        Add a new node to the dictionary of microservices
+        """
         ip_port, ip_address = query_params.get("ip_port", None), query_params.get(
             "ip_address", None
         )
