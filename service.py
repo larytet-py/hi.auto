@@ -77,16 +77,17 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         microservice = microservices[0]
 
-        # rotate the list 
+        # rotate the list
         microservices = deque(microservices)
         microservices.rotate(1)
-        microservices = list(microservices)        
+        microservices = list(microservices)
 
         return microservice
 
-    def _proxy_request(self):
-        # urllib.request.urlopen(url)
-        pass
+    def _proxy_request(self, microservice: Microservice, url_path: str):
+        urllib.request.urlopen(
+            f"http://{microservice.ip_address}:{microservice.ip_port}{url_path}"
+        )
 
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
