@@ -43,20 +43,22 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
 
 @easyargs
-def main(server_port=8080):
+def main(server_port=38080):
     server_address = ("", server_port)
     httpd = http.server.HTTPServer(server_address, HTTPHandler)
     logger.info(f"Starting httpd {server_address}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        pass
-    logger.info(f"Closing httpd {server_address}")
-    httpd.server_close()
+        logger.error("I got Ctrl-C")
+    finally:
+        logger.info(f"Closing httpd {server_address}")
+        httpd.server_close()
     return 0
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("hi.auto")
+    logger = logging.getLogger()
+    logging.basicConfig()
     logger.setLevel(logging.DEBUG)
     sys.exit(main())
