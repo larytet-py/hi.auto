@@ -53,6 +53,7 @@ def main(server_port=8080):
         pass
     logger.info(f"Closing httpd {server_address}")
     httpd.server_close()
+    return 0
 
 
 if __name__ == "__main__":
