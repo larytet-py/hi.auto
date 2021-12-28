@@ -2,8 +2,9 @@ import sys
 from os import path
 from typing import Set, Dict, IO, Iterable, List, Optional, Tuple, Union
 import logging
-
+from urllib.parse import urlparse, parse_qs
 import http.server
+import easyargs
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
@@ -27,10 +28,12 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         parsed_url = urlparse(self.path)
         if not parsed_url.path:
+            msg = f"Path is missing in the URL {self.path}"
             self._set_error(msg)
             return
 
         if not parsed_url.path in ["", "/"]:
+            msg = f"I don;t recognize {parsed_url.path}"
             self._set_error(msg)
             return
 
@@ -38,6 +41,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self._do_post(query_params, post_data)
 
 
+@easyargs(server_port=8080)
 def main():
     server_address = ("", server_port)
     httpd = http.server.HTTPServer(server_address, HTTPHandler)
