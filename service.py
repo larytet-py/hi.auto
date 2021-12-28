@@ -34,26 +34,26 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         return parsed_url.path, query_params
 
     def do_GET(self):
-        path, query_params = self._get_params()
-        msg = f"This is GET path={path} params={query_params}"
+        url_path, query_params = self._get_params()
+        msg = f"This is GET path={url_path} params={query_params}"
         self._set_response_ok(msg)
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", "0"))
         post_data = self.rfile.read(content_length).decode("utf-8")
 
-        path, query_params = self._get_params()
-        if not path:
+        url_path, query_params = self._get_params()
+        if not url_path:
             msg = f"Path is missing in the URL {self.path}"
             self._set_error(HTTPStatus.BAD_REQUEST, msg)
             return
 
-        if not path in ["", "/"]:
-            msg = f"I don;t recognize {path}"
+        if not url_path in ["", "/"]:
+            msg = f"I don;t recognize {url_path}"
             self._set_error(HTTPStatus.BAD_REQUEST, msg)
             return
 
-        msg = f"This is POST path={path} params={query_params}"
+        msg = f"This is POST path={url_path} params={query_params}"
         self._set_response_ok(msg)
 
 
