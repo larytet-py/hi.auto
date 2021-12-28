@@ -12,6 +12,7 @@ from collections import namedtuple, deque
 Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
 logger = None
 
+# Shortcut: I want to add a custom handler with self.microservices
 all_microservices: Dict[str, List[Microservice]] = {}
 
 
