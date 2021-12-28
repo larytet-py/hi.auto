@@ -16,7 +16,7 @@ Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def __init__(self):
         super().__init__(self)
-        self.microservices: Set[str, Microservice] = set()
+        self.microservices: Dict[str, Set[Microservice]] = {}
 
     def _set_response_ok(self, msg: Any):
         self.send_response(HTTPStatus.OK)
@@ -43,21 +43,20 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         return parsed_url.path, query_params
 
     def do_registration(self, url_path: str, query_params: Dict[str, str]):
-        if not "ip_port" in query_params:
+        ip_port, ip_address = query_params.get("ip_port", None), query_params.get(
+            "ip_address", None
+        )
+        if not "ip_port" or not ip_address:
             self._set_error(
                 HTTPStatus.BAD_REQUEST,
-                f"ip_port is missing in the URL parameters {query_params}",
+                f"ip_address/ip_port tuple is missing in the URL parameters {query_params}",
             )
             return
 
-        if not "ip_address" in query_params:
-            self._set_error(
-                HTTPStatus.BAD_REQUEST,
-                f"ip_address is missing in the URL parameters {query_params}",
-            )
-            return
-
-        self.microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
+        microservices = self.microservices.get(url_path, set())
+        microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
+        self.microservices[url_path] = microservices
+        self._set_response_ok(f"Added ")
 
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
