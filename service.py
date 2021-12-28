@@ -27,30 +27,33 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         msg = json.dumps({"err": msg})
         self.wfile.write(msg.encode("utf-8"))
 
-    def do_GET(self):
+    def _get_params(self) -> Tuple[str, Dict[str, str]]:
         parsed_url = urlparse(self.path)
+        # 'keep_blank_values' will enable parameters without a value
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
-        msg = f"This is GET  path={parsed_url.path} params={query_params}"
+        return parsed_url.path, query_params
+
+    def do_GET(self):
+        path, query_params = self._get_params()
+        msg = f"This is GET path={path} params={query_params}"
         self._set_response_ok(msg)
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", "0"))
         post_data = self.rfile.read(content_length).decode("utf-8")
 
-        parsed_url = urlparse(self.path)
-        if not parsed_url.path:
+        path, query_params = self._get_params()
+        if not path:
             msg = f"Path is missing in the URL {self.path}"
             self._set_error(msg)
             return
 
-        if not parsed_url.path in ["", "/"]:
-            msg = f"I don;t recognize {parsed_url.path}"
+        if not path in ["", "/"]:
+            msg = f"I don;t recognize {path}"
             self._set_error(msg)
             return
 
-        # 'keep_blank_values' will enable parameters without a value
-        query_params = parse_qs(parsed_url.query, keep_blank_values=True)
-        msg = f"This is POST path={parsed_url.path} params={query_params}"
+        msg = f"This is POST path={path} params={query_params}"
         self._set_response_ok(msg)
 
 
