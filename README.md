@@ -15,3 +15,4 @@ pylint --disable=R,C,W1203 service.py
 # Links
 
 *  https://stormy-durian-179.notion.site/Info-for-new-candidates-a2615e72706242dc9c77d0c8b1abdc78
+*  https://www.youtube.com/watch?v=xB9gF8dUjX4 
