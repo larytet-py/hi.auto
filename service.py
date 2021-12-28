@@ -1,14 +1,23 @@
+from collections import namedtuple
 import sys
-from typing import Dict,Tuple, Any
+from typing import Dict, Tuple, Any, Set
 import logging
 from urllib.parse import urlparse, parse_qs
 import http.server
 from http import HTTPStatus
 import easyargs
 import json
+import requests
+from collections import namedtuple
+
+Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
+    def __init__(self):
+        super().__init__(self)
+        self.microservices: Set[str, Microservice] = set()
+
     def _set_response_ok(self, msg: Any):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "application/json")
@@ -33,28 +42,37 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
         return parsed_url.path, query_params
 
+    def do_registration(self, url_path: str, query_params: Dict[str, str]):
+        if not "ip_port" in query_params:
+            self._set_error(
+                HTTPStatus.BAD_REQUEST,
+                f"ip_port is missing in the URL parameters {query_params}",
+            )
+            return
+
+        if not "ip_address" in query_params:
+            self._set_error(
+                HTTPStatus.BAD_REQUEST,
+                f"ip_address is missing in the URL parameters {query_params}",
+            )
+            return
+
+        self.microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
+
     def do_GET(self):
+        # Shortcut: assume that all requests are HTTP GET
         url_path, query_params = self._get_params()
-        msg = f"This is GET path={url_path} params={query_params}"
-        self._set_response_ok(msg)
-
-    def do_POST(self):
-        content_length = int(self.headers.get("Content-Length", "0"))
-        post_data = self.rfile.read(content_length).decode("utf-8")
-
-        url_path, query_params = self._get_params()
-        if not url_path:
-            msg = f"Path is missing in the URL {self.path}"
-            self._set_error(HTTPStatus.BAD_REQUEST, msg)
+        if url_path in ["/register"]:
+            self._do_registration(url_path, query_params)
             return
 
-        if not url_path in ["", "/"]:
-            msg = f"I don;t recognize {url_path}"
-            self._set_error(HTTPStatus.BAD_REQUEST, msg)
+        # forward the query
+        micro_service, msg = self._pcik_microservice(url_path)
+        if micro_service is None:
+            self._set_error(f"msg")
             return
 
-        msg = f"This is POST path={url_path} params={query_params}"
-        self._set_response_ok(msg)
+        self.send_query(url_path, query_params)
 
 
 @easyargs
