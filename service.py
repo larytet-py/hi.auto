@@ -48,7 +48,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         ip_port, ip_address = query_params.get("ip_port", None), query_params.get(
             "ip_address", None
         )
-        if not "ip_port" or not ip_address:
+        if not ip_port or not ip_address:
             self._set_error(
                 HTTPStatus.BAD_REQUEST,
                 f"ip_address/ip_port tuple is missing in the URL parameters {query_params}",
