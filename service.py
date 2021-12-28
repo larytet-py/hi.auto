@@ -42,8 +42,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self._do_post(query_params, post_data)
 
 
-@easyargs(server_port=8080)
-def main():
+@easyargs
+def main(server_port=8080):
     server_address = ("", server_port)
     httpd = http.server.HTTPServer(server_address, HTTPHandler)
     logger.info(f"Starting httpd {server_address}")
