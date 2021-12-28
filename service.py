@@ -107,15 +107,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         self._proxy_request(url_path, query_params)
 
-class ProxyHTTPHandler:
-    def __init__(self):
-        self.http_handler = HTTPHandler()
-        self.http_handler.microservices = {}
-        self.server = http.server.HTTPServer(self.http_handler)    
 
 @easyargs
 def main(server_port=8080):
-    # TODO Use ProxyHTTPHandler() instead
     server_address = ("", server_port)
     httpd = http.server.HTTPServer(server_address, HTTPHandler)
     logger.info(f"Starting httpd {server_address}")
