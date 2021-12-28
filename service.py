@@ -1,4 +1,3 @@
-from collections import namedtuple
 import sys
 from typing import Dict, Tuple, Any, List, Set
 import logging
@@ -9,17 +8,15 @@ from http import HTTPStatus
 import easyargs
 import json
 import requests
-from collections import namedtuple
+from collections import namedtuple, deque
 
 Microservice = namedtuple("Microservice", ["ip_address", "ip_port"])
 logger = None
 
+all_microservices: Dict[str, List[Microservice]] = {}
+
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
-    def __init__(self):
-        super().__init__(self)
-        self.microservices: Dict[str, List[Microservice]] = {}
-
     def _set_response_ok(self, msg: Any):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "application/json")
@@ -58,9 +55,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             )
             return
 
-        microservices: Set[Microservice] = self.microservices.get(url_path, set())
+        microservices: Set[Microservice] = all_microservices.get(url_path, set())
         microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
-        self.microservices[url_path] = list(microservices)
+        all_microservices[url_path] = list(microservices)
         self._set_response_ok(f"Added ")
 
     def _pick_microservice(self, url_path: str) -> Microservice:
@@ -68,7 +65,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         Check if the path is known. Pick a node from the set, add the node to end of
         # roun-roubin list
         """
-        microservices: List[Microservice] = self.microservices.get(url_path, [])
+        microservices: List[Microservice] = all_microservices.get(url_path, [])
         if not microservices:
             self._set_error(
                 HTTPStatus.BAD_REQUEST, f"Path {url_path} is not registered"
@@ -86,11 +83,14 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def _proxy_request(self, microservice: Microservice, url_path: str):
         try:
+            # short cut skip processing return status
             urllib.request.urlopen(
                 f"http://{microservice.ip_address}:{microservice.ip_port}{url_path}"
             )
         except Exception as e:
             self._set_error(HTTPStatus.INTERNAL_SERVER_ERROR, f"{e}")
+
+        self._set_response_ok(f"I skip the return status at the moment")
 
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
