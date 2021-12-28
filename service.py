@@ -1,6 +1,6 @@
 from collections import namedtuple
 import sys
-from typing import Dict, Tuple, Any, Set
+from typing import Dict, Tuple, Any,  List, Set
 import logging
 from urllib.parse import urlparse, parse_qs
 import urllib.request
@@ -17,7 +17,7 @@ logger = None
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def __init__(self):
         super().__init__(self)
-        self.microservices: Dict[str, Set[Microservice]] = {}
+        self.microservices: Dict[str, List[Microservice]] = {}
 
     def _set_response_ok(self, msg: Any):
         self.send_response(HTTPStatus.OK)
@@ -59,7 +59,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
         microservices: Set[Microservice] = self.microservices.get(url_path, set())
         microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
-        self.microservices[url_path] = microservices
+        self.microservices[url_path] = list(microservices)
         self._set_response_ok(f"Added ")
 
     def _pcik_microservice(self, url_path:str) -> Microservice:
