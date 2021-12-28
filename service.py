@@ -53,7 +53,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             )
             return
 
-        microservices = self.microservices.get(url_path, set())
+        microservices: Set[Microservice] = self.microservices.get(url_path, set())
         microservices.add(Microservice(ip_port=ip_port, ip_address=ip_address))
         self.microservices[url_path] = microservices
         self._set_response_ok(f"Added ")
