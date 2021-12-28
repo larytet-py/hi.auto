@@ -64,7 +64,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def _pick_microservice(self, url_path: str) -> Microservice:
         """
         Check if the path is known. Pick a node from the set, add the node to end of
-        # roun-roubin list
+        # round-robin list
         """
         microservices: List[Microservice] = all_microservices.get(url_path, [])
         if not microservices:
