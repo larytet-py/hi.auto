@@ -3,6 +3,7 @@ import sys
 from typing import Dict, Tuple, Any, Set
 import logging
 from urllib.parse import urlparse, parse_qs
+import urllib.request
 import http.server
 from http import HTTPStatus
 import easyargs
@@ -58,6 +59,11 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.microservices[url_path] = microservices
         self._set_response_ok(f"Added ")
 
+    def _pcik_microservice(self, url_path:str) -> Microservice:
+
+    def _proxy_request(self):
+        # urllib.request.urlopen(url)
+
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
         url_path, query_params = self._get_params()
@@ -66,12 +72,11 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             return
 
         # forward the query
-        micro_service, msg = self._pcik_microservice(url_path)
+        micro_service = self._pcik_microservice(url_path)
         if micro_service is None:
-            self._set_error(f"msg")
             return
 
-        self.send_query(url_path, query_params)
+        self.proxy_request(url_path, query_params)
 
 
 @easyargs
