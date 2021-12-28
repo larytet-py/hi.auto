@@ -1,6 +1,5 @@
 import sys
-from os import path
-from typing import Set, Dict, IO, Iterable, List, Optional, Tuple, Union, Any
+from typing import Dict,Tuple, Any
 import logging
 from urllib.parse import urlparse, parse_qs
 import http.server

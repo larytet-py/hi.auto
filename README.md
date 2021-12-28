@@ -9,7 +9,7 @@ Live coding in Python. Our goal is to test for fluency, control, speed and sharp
 
 ```
 black .
-pylint --disable=R,C service.py
+pylint --disable=R,C,W1203 service.py
 ```
 
 # Links
