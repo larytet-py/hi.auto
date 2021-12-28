@@ -51,7 +51,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
 
 @easyargs
-def main(server_port=38080):
+def main(server_port=8080):
     server_address = ("", server_port)
     httpd = http.server.HTTPServer(server_address, HTTPHandler)
     logger.info(f"Starting httpd {server_address}")
