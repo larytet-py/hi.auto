@@ -67,6 +67,10 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         Check if the path is known. Pick a node from the set, add the node to end of 
         # roun-roubin list 
         """
+        microservice: Microservice = self.microservices.get(url_path, None)
+        if not microservice:
+            self._set_error(HTTPStatus.BAD_REQUEST, f"Path {url_path} is not registered")
+            return
 
     def _proxy_request(self):
         # urllib.request.urlopen(url)
