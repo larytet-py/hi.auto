@@ -9,7 +9,7 @@ import json
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
-    def _set_response(self):
+    def _set_response_ok(self):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -22,6 +22,11 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.end_headers()
         self.wfile.write(msg.encode("utf-8"))
+
+    def do_GET(self):
+        msg = (f"This is GET {self.path}")
+        self.wfile.write(msg.encode("utf-8"))
+        self._set_response_ok()
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", "0"))
@@ -38,8 +43,11 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             self._set_error(msg)
             return
 
+        # 'keep_blank_values' will enable parameters without a value
         query_params = parse_qs(parsed_url.query, keep_blank_values=True)
-        self._do_post(query_params, post_data)
+        msg = (f"This is POST path={parsed_url.path} params={query_params}")
+        self.wfile.write(msg.encode("utf-8"))
+        self._set_response_ok()
 
 
 @easyargs
