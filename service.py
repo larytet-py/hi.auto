@@ -85,9 +85,12 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         return microservice
 
     def _proxy_request(self, microservice: Microservice, url_path: str):
-        urllib.request.urlopen(
-            f"http://{microservice.ip_address}:{microservice.ip_port}{url_path}"
-        )
+        try:
+            urllib.request.urlopen(
+                f"http://{microservice.ip_address}:{microservice.ip_port}{url_path}"
+            )
+        except Exception as e:
+            self._set_error(HTTPStatus.INTERNAL_SERVER_ERROR, f"{e}")
 
     def do_GET(self):
         # Shortcut: assume that all requests are HTTP GET
