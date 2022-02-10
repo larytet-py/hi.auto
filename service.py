@@ -80,6 +80,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         microservices = deque(microservices)
         microservices.rotate(1)
         microservices = list(microservices)
+        all_microservices[url_path] = microservices
+        
 
         return microservice
 
