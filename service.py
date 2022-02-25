@@ -17,8 +17,25 @@ logger = None
 all_microservices: Dict[str, List[Microservice]] = {}
 
 
+class Stats:
+    def __init__(self):
+        self.counters = {}
+
+    def inc(self, name):
+        value = self.counters.get(name, 0)
+        value += 1
+        self.counters[name] = value
+
+    def __str__(self):
+        return json.dumps(self.counters)
+
+
+stats = Stats()
+
+
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def _set_response_ok(self, msg: Any):
+        stats.inc("http_ok")
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -28,6 +45,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(msg.encode("utf-8"))
 
     def _set_error(self, status: HTTPStatus, msg: Any):
+        stats.inc(f"http_{status}")
         self.send_response(status)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -54,6 +72,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
                 HTTPStatus.BAD_REQUEST,
                 f"ip_address/ip_port tuple is missing in the URL parameters {query_params}",
             )
+            stats.inc("registration_bad_port_host")
             return
 
         microservices: Set[Microservice] = all_microservices.get(url_path, set())
@@ -61,6 +80,7 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         microservices.add(microservice)
         all_microservices[url_path] = list(microservices)
         self._set_response_ok(f"Added {microservice}")
+        stats.inc("registration_ok")
 
     def _pick_microservice(self, url_path: str) -> Microservice:
         """
@@ -81,8 +101,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
         microservices.rotate(1)
         microservices = list(microservices)
         all_microservices[url_path] = microservices
-        
 
+        stats.inc("pick_microservice_ok")
         return microservice
 
     def _proxy_request(self, microservice: Microservice, url_path: str):
@@ -92,22 +112,28 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
                 f"http://{microservice.ip_address}:{microservice.ip_port}{url_path}"
             )
         except Exception as e:
+            stats.inc("proxy_exception")
             self._set_error(HTTPStatus.INTERNAL_SERVER_ERROR, f"{e}")
 
-        self._set_response_ok(f"I skip the return status at the moment")
+        stats.inc("proxy_ok")
+        self._set_response_ok("I skip the return status at the moment")
 
     def do_GET(self):
+        stats.inc("do_get")
         # Shortcut: assume that all requests are HTTP GET
         url_path, query_params = self._get_params()
         if url_path in ["/register"]:
+            stats.inc("do_get_register")
             self._do_registration(url_path, query_params)
             return
 
         # forward the query
         micro_service = self._pick_microservice(url_path)
         if micro_service is None:
+            stats.inc("micro_service_missing")
             return
 
+        stats.inc("do_get_proxy")
         self._proxy_request(url_path, query_params)
 
 
